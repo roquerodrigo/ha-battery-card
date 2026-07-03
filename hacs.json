@@ -1,0 +1,7 @@
+{
+    "name": "Battery Card",
+    "filename": "battery-card.js",
+    "content_in_root": true,
+    "render_readme": true,
+    "homeassistant": "2026.5.0"
+}

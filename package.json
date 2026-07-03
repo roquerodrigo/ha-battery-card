@@ -1,0 +1,13 @@
+{
+  "name": "ha-battery-card",
+  "version": "1.0.0",
+  "description": "Home Assistant Lovelace card listing every battery-powered device and highlighting the low ones",
+  "license": "MIT",
+  "type": "module",
+  "main": "battery-card.js",
+  "author": "Rodrigo Roque",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/roquerodrigo/ha-battery-card.git"
+  }
+}
