@@ -5,6 +5,10 @@ A Home Assistant **Lovelace custom card** (`custom:battery-card`) that
 own tile — **weakest first** — highlighting the low ones. No manual entity list
 and **no custom integration**: it is a single-file, zero-build frontend resource.
 
+![Battery Card](assets/preview.png)
+
+<img src="assets/preview-mobile.png" alt="Battery Card — responsive single-column layout on mobile" width="360">
+
 ## Features
 
 - **Auto-discovery** — finds every `sensor` with `device_class: battery`; no

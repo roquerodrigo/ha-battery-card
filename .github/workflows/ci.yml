@@ -18,9 +18,6 @@ jobs:
         uses: hacs/action@main
         with:
           category: plugin
-          # Manual-install card (not in the HACS store), so skip the
-          # store-only screenshot requirement.
-          ignore: images
 
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
