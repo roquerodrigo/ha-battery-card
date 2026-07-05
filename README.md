@@ -1,5 +1,12 @@
 # Battery Card
 
+[![CI](https://github.com/roquerodrigo/ha-battery-card/actions/workflows/ci.yml/badge.svg)](https://github.com/roquerodrigo/ha-battery-card/actions/workflows/ci.yml)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+
+[![Open your Home Assistant instance and open the repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=ha-battery-card&category=plugin)
+
+---
+
 A Home Assistant **Lovelace custom card** (`custom:battery-card`) that
 **auto-discovers every `battery` device-class sensor** and shows each one as its
 own tile — **weakest first** — highlighting the low ones. No manual entity list
@@ -43,11 +50,10 @@ and **no custom integration**: it is a single-file, zero-build frontend resource
 
 ### HACS (custom repository)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=ha-battery-card&category=plugin)
-
-The button above opens your Home Assistant and pre-fills the "add custom
-repository" dialog. Otherwise, add this repository manually as a **custom
-repository** of category **Dashboard**, install it, then reload resources.
+Use the **My Home Assistant** button at the top of this README (it opens your
+Home Assistant and pre-fills the "add custom repository" dialog), or add this
+repository manually as a **custom repository** of category **Dashboard**, then
+install it and reload resources.
 
 ## Usage
 
