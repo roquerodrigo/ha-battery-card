@@ -43,8 +43,11 @@ and **no custom integration**: it is a single-file, zero-build frontend resource
 
 ### HACS (custom repository)
 
-Add this repository as a **custom repository** of category **Dashboard**, install
-it, then reload resources.
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=ha-battery-card&category=plugin)
+
+The button above opens your Home Assistant and pre-fills the "add custom
+repository" dialog. Otherwise, add this repository manually as a **custom
+repository** of category **Dashboard**, install it, then reload resources.
 
 ## Usage
 
