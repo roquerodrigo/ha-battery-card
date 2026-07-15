@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.0...v1.1.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* guard against duplicate custom element registration ([dca0b28](https://github.com/roquerodrigo/ha-battery-card/commit/dca0b28eb0acf69b05a5a02547200e3ee7738854))
+
 ## [1.1.0](https://github.com/roquerodrigo/ha-battery-card/compare/v1.0.0...v1.1.0) (2026-07-05)
 
 
