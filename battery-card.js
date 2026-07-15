@@ -580,17 +580,23 @@ class BatteryCardEditor extends HTMLElement {
   }
 }
 
-customElements.define("battery-card", BatteryCard);
-customElements.define("battery-card-editor", BatteryCardEditor);
+// The module runs once per URL it is served from, so a setup that loads the card
+// both as a dashboard resource and as a `frontend.extra_module_url` evaluates it
+// twice. Without this guard the second run throws on the already-taken tag name
+// and registers a duplicate entry in the card picker.
+if (!customElements.get("battery-card")) {
+  customElements.define("battery-card", BatteryCard);
+  customElements.define("battery-card-editor", BatteryCardEditor);
 
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "battery-card",
-  name: "Battery Card",
-  description: "Lists every battery-powered device and highlights the low ones.",
-  preview: true,
-  documentationURL: "https://github.com/roquerodrigo/ha-battery-card",
-});
+  window.customCards = window.customCards || [];
+  window.customCards.push({
+    type: "battery-card",
+    name: "Battery Card",
+    description: "Lists every battery-powered device and highlights the low ones.",
+    preview: true,
+    documentationURL: "https://github.com/roquerodrigo/ha-battery-card",
+  });
 
-// eslint-disable-next-line no-console
-console.info("%c battery-card ", "background:#639922;color:#fff;border-radius:3px", "loaded");
+  // eslint-disable-next-line no-console
+  console.info("%c battery-card ", "background:#639922;color:#fff;border-radius:3px", "loaded");
+}
