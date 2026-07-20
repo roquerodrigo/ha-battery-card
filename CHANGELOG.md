@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.1...v1.1.2) (2026-07-20)
+
+
+### Documentation
+
+* add CLAUDE.md ([c5d4366](https://github.com/roquerodrigo/ha-battery-card/commit/c5d4366ad4a0b7053490600e49a831f72fcb7f29))
+
 ## [1.1.1](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.0...v1.1.1) (2026-07-15)
 
 
