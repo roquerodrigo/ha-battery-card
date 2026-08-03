@@ -6,15 +6,25 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: HACS validation
-        uses: hacs/action@main
-        with:
-          category: plugin
+    uses: roquerodrigo/workflows/.github/workflows/home-assistant-validate.yml@main
+    with:
+      hassfest: false
+      version-check: false
+      hacs-category: plugin
+
+  update-pr-branch:
+    if: github.event_name == 'pull_request'
+    needs: [validate]
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: roquerodrigo/workflows/.github/workflows/update-pr-branch.yml@main
