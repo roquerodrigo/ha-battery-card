@@ -115,6 +115,24 @@ function parseLevel(state) {
   return Number.isFinite(value) ? value : null;
 }
 
+const HTML_ESCAPES = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+/** Escape a value for interpolation into HTML text content. */
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => HTML_ESCAPES[character]);
+}
+
+/** Escape a value for interpolation into a double-quoted HTML attribute. */
+function escapeAttribute(value) {
+  return escapeHtml(value);
+}
+
 class BatteryCard extends HTMLElement {
   constructor() {
     super();
@@ -270,7 +288,7 @@ class BatteryCard extends HTMLElement {
     const shown = mode === "low" ? items.filter((i) => i.level !== null && i.level <= this._config.threshold) : items;
 
     // Skip a rebuild when nothing visible has changed (avoids flicker).
-    const signature = JSON.stringify([mode, sort, dir, title, lang, this._config.columns, shown.map((i) => [i.id, i.level])]);
+    const signature = JSON.stringify([mode, sort, dir, title, lang, this._config.columns, shown.map((i) => [i.id, i.name, i.level])]);
     if (signature === this._signature) return;
     this._signature = signature;
 
@@ -280,11 +298,11 @@ class BatteryCard extends HTMLElement {
         const pct = item.level === null ? 0 : Math.max(0, Math.min(100, item.level));
         const value = item.level === null ? "—" : `${Math.round(item.level)}%`;
         return `
-          <div class="row" data-id="${item.id}" title="${item.name}">
+          <div class="row" data-id="${escapeAttribute(item.id)}" title="${escapeAttribute(item.name)}">
             <ha-icon class="icon" style="color:${color}" icon="${batteryIcon(item.level)}"></ha-icon>
             <div class="body">
               <div class="line">
-                <span class="name" title="${item.name}">${item.name}</span>
+                <span class="name" title="${escapeAttribute(item.name)}">${escapeHtml(item.name)}</span>
                 <span class="value" style="color:${color}">${value}</span>
               </div>
               <div class="bar"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
@@ -302,7 +320,7 @@ class BatteryCard extends HTMLElement {
       <style>${BatteryCard.styles}</style>
       <ha-card>
         <div class="header">
-          <div class="title">${title}</div>
+          <div class="title">${escapeHtml(title)}</div>
           <div class="controls">
             <div class="toggle" role="group" aria-label="${t("card.filter")}">
               <button data-mode="all" class="${mode === "all" ? "active" : ""}">${t("card.all")}</button>
@@ -559,7 +577,14 @@ class BatteryCardEditor extends HTMLElement {
       this._form = document.createElement("ha-form");
       this._form.computeLabel = (schema) => this._labels(schema);
       this._form.addEventListener("value-changed", (ev) => {
-        const config = { type: "custom:battery-card", ...ev.detail.value };
+        // Merge over the incoming config so keys outside the form schema
+        // (e.g. a YAML `entities` list) survive an editor round-trip; drop
+        // cleared text fields so an empty title falls back to the localized
+        // default instead of freezing a blank header.
+        const config = { type: "custom:battery-card", ...this._config, ...ev.detail.value };
+        for (const [key, value] of Object.entries(config)) {
+          if (value === "") delete config[key];
+        }
         this.dispatchEvent(
           new CustomEvent("config-changed", { detail: { config }, bubbles: true, composed: true })
         );
