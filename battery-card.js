@@ -141,7 +141,7 @@ class BatteryCard extends HTMLElement {
     this._hass = null;
     this._runtimeMode = null; // in-card toggle override; null = follow config
     this._runtimeSort = null; // in-card sort override; null = follow config
-    this._runtimeDir = null; // in-card sort direction override; null = follow config
+    this._runtimeDirection = null; // in-card sort direction override; null = follow config
     this._signature = null;
   }
 
@@ -186,7 +186,7 @@ class BatteryCard extends HTMLElement {
     };
     this._runtimeMode = null;
     this._runtimeSort = null;
-    this._runtimeDir = null;
+    this._runtimeDirection = null;
     this._signature = null; // force re-render
     if (this._hass) this._render();
   }
@@ -215,8 +215,8 @@ class BatteryCard extends HTMLElement {
     } else {
       ids = Object.keys(hass.states).filter((id) => {
         if (!id.startsWith("sensor.")) return false;
-        const st = hass.states[id];
-        if (st.attributes.device_class !== "battery") return false;
+        const state = hass.states[id];
+        if (state.attributes.device_class !== "battery") return false;
         if (registry[id] && registry[id].hidden_by) return false;
         return true;
       });
@@ -224,8 +224,8 @@ class BatteryCard extends HTMLElement {
 
     const items = ids
       .map((id) => {
-        const st = hass.states[id];
-        if (!st) return null;
+        const state = hass.states[id];
+        if (!state) return null;
         // Prefer the device name (user override, then default) over the
         // battery entity's own friendly name; fall back to entity / id.
         const entry = registry[id];
@@ -233,23 +233,23 @@ class BatteryCard extends HTMLElement {
         const deviceName = device ? device.name_by_user || device.name : null;
         return {
           id,
-          name: deviceName || st.attributes.friendly_name || id,
-          level: parseLevel(st),
+          name: deviceName || state.attributes.friendly_name || id,
+          level: parseLevel(state),
         };
       })
       .filter(Boolean);
 
-    const dir = this._effectiveDir() === "desc" ? -1 : 1;
+    const directionFactor = this._effectiveDirection() === "desc" ? -1 : 1;
     if (this._effectiveSort() === "name") {
       // Alphabetical by name (asc = A→Z).
-      items.sort((a, b) => a.name.localeCompare(b.name) * dir);
+      items.sort((a, b) => a.name.localeCompare(b.name) * directionFactor);
     } else {
       // By level (asc = weakest first); entities without a value always last.
       items.sort((a, b) => {
         if (a.level === null && b.level === null) return a.name.localeCompare(b.name);
         if (a.level === null) return 1;
         if (b.level === null) return -1;
-        if (a.level !== b.level) return (a.level - b.level) * dir;
+        if (a.level !== b.level) return (a.level - b.level) * directionFactor;
         return a.name.localeCompare(b.name);
       });
     }
@@ -264,8 +264,8 @@ class BatteryCard extends HTMLElement {
     return this._runtimeSort ?? this._config.sort;
   }
 
-  _effectiveDir() {
-    return this._runtimeDir ?? this._config.sortDirection;
+  _effectiveDirection() {
+    return this._runtimeDirection ?? this._config.sortDirection;
   }
 
   _colorVar(level) {
@@ -282,20 +282,20 @@ class BatteryCard extends HTMLElement {
     const items = this._collect();
     const mode = this._effectiveMode();
     const sort = this._effectiveSort();
-    const dir = this._effectiveDir();
-    const arrow = dir === "desc" ? "↓" : "↑";
+    const direction = this._effectiveDirection();
+    const arrow = direction === "desc" ? "↓" : "↑";
     const title = this._config.title ?? t("card.default_title");
     const shown = mode === "low" ? items.filter((i) => i.level !== null && i.level <= this._config.threshold) : items;
 
     // Skip a rebuild when nothing visible has changed (avoids flicker).
-    const signature = JSON.stringify([mode, sort, dir, title, lang, this._config.columns, shown.map((i) => [i.id, i.name, i.level])]);
+    const signature = JSON.stringify([mode, sort, direction, title, lang, this._config.columns, shown.map((i) => [i.id, i.name, i.level])]);
     if (signature === this._signature) return;
     this._signature = signature;
 
     const rows = shown
       .map((item) => {
         const color = this._colorVar(item.level);
-        const pct = item.level === null ? 0 : Math.max(0, Math.min(100, item.level));
+        const percentage = item.level === null ? 0 : Math.max(0, Math.min(100, item.level));
         const value = item.level === null ? "—" : `${Math.round(item.level)}%`;
         return `
           <div class="row" data-id="${escapeAttribute(item.id)}" title="${escapeAttribute(item.name)}">
@@ -305,7 +305,7 @@ class BatteryCard extends HTMLElement {
                 <span class="name" title="${escapeAttribute(item.name)}">${escapeHtml(item.name)}</span>
                 <span class="value" style="color:${color}">${value}</span>
               </div>
-              <div class="bar"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
+              <div class="bar"><div class="fill" style="width:${percentage}%;background:${color}"></div></div>
             </div>
           </div>`;
       })
@@ -348,7 +348,7 @@ class BatteryCard extends HTMLElement {
         const field = btn.dataset.sort;
         if (this._effectiveSort() === field) {
           // Clicking the active field flips the direction.
-          this._runtimeDir = this._effectiveDir() === "asc" ? "desc" : "asc";
+          this._runtimeDirection = this._effectiveDirection() === "asc" ? "desc" : "asc";
         } else {
           // Switching field keeps the current direction.
           this._runtimeSort = field;
