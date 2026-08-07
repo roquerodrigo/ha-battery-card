@@ -1,10 +1,6 @@
-# artifacts
 node_modules
 dist
 
-# misc
 .DS_Store
 .vscode
 .idea
-
-/.claude/scheduled_tasks.lock
