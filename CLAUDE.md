@@ -5,8 +5,11 @@ every `sensor` with `device_class: battery`, renders one tile per battery in a
 responsive grid, sorted weakest-first by default, and highlights low/warning
 levels using Home Assistant's own theme tokens.
 
-Public repo — see the global CLAUDE.md rules for PR/branch conventions on
-public repos (branch protection on `main`, PRs required, no force-push).
+Public repository. `main` is protected: CI must be green and every change goes
+through a pull request — no direct pushes, no force-push, no history rewrites.
+Pull requests are integrated with **rebase merge only** (merge commits and
+squash are disabled). Start every branch from an up-to-date `main`. Code,
+comments, commit messages, and PR titles/descriptions are written in English.
 
 ## Layout
 
@@ -42,14 +45,16 @@ To try it locally against a real Home Assistant instance:
 ## Lint / CI
 
 - No JS linter or formatter is configured — don't invent an ESLint/Prettier
-  step that doesn't exist in this repo.
+  step that doesn't exist in this repo. `node --check battery-card.js` is the
+  syntax gate to run before pushing.
 - `pre-commit install` runs the generic hygiene hooks in
   `.pre-commit-config.yaml` (whitespace, EOF, YAML/JSON validity, LF endings).
-- CI (`.github/workflows/ci.yml`) runs `hacs/action` (category `plugin`) to
-  validate the HACS manifest and repo structure on every push/PR to `main` —
-  this is effectively the project's only automated check. Keep `hacs.json`
-  and `package.json` valid. The release-please job only runs on `main`
-  pushes and only after the `validate` job passes.
+- CI (`.github/workflows/ci.yml`) validates the repository as a HACS `plugin`
+  through the shared reusable workflows in `roquerodrigo/workflows`. Keep
+  `hacs.json` and `package.json` valid.
+- Releases are automated by `.github/workflows/release.yml`: release-please
+  runs via `workflow_run` after a successful CI run of a **push** to `main`,
+  so a pull request with green CI never cuts a release.
 
 ## Conventions a newcomer would miss
 
