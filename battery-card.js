@@ -601,6 +601,5 @@ if (!customElements.get("battery-card")) {
     documentationURL: "https://github.com/roquerodrigo/ha-battery-card",
   });
 
-  // eslint-disable-next-line no-console
   console.info("%c battery-card ", "background:#639922;color:#fff;border-radius:3px", "loaded");
 }
