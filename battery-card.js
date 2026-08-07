@@ -144,6 +144,10 @@ class BatteryCard extends HTMLElement {
     if (typeof threshold !== "number" || threshold < 0 || threshold > 100) {
       throw new Error('battery-card: "threshold" must be a number between 0 and 100');
     }
+    const warning = config.warning ?? Math.min(100, threshold * 2);
+    if (typeof warning !== "number" || warning < 0 || warning > 100) {
+      throw new Error('battery-card: "warning" must be a number between 0 and 100');
+    }
     const sort = config.sort ?? "level";
     if (sort !== "level" && sort !== "name") {
       throw new Error('battery-card: "sort" must be "level" or "name"');
@@ -160,7 +164,7 @@ class BatteryCard extends HTMLElement {
       title: config.title ?? null,
       mode,
       threshold,
-      warning: config.warning ?? Math.min(100, threshold * 2),
+      warning,
       sort,
       sortDirection,
       columns,
