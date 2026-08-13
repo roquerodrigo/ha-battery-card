@@ -71,6 +71,30 @@ const TRANSLATIONS = {
     "editor.dir_asc": "Crescente (menor / A→Z primeiro)",
     "editor.dir_desc": "Decrescente (maior / Z→A primeiro)",
   },
+  sk: {
+    "card.default_title": "Batérie",
+    "card.filter": "Filter",
+    "card.all": "Všetky",
+    "card.low": "Slabé",
+    "card.sort": "Zoradiť",
+    "card.sort_by_level": "Zoradiť podľa úrovne (kliknite znovu pre zmenu smeru)",
+    "card.sort_by_name": "Zoradiť podľa názvu (kliknite znovu pre zmenu smeru)",
+    "card.empty_all_ok": "Všetky batérie sú v poriadku",
+    "card.empty_none": "Nenašli sa žiadne batérie",
+    "editor.title": "Názov",
+    "editor.mode": "Zobraziť",
+    "editor.sort": "Zoradiť",
+    "editor.direction": "Smer",
+    "editor.threshold": "Hranica slabej batérie",
+    "editor.warning": "Hranica varovania",
+    "editor.columns": "Maximálny počet stĺpcov na riadok",
+    "editor.mode_all": "Všetky batérie",
+    "editor.mode_low": "Iba slabé",
+    "editor.sort_level": "Podľa úrovne (%)",
+    "editor.sort_name": "Podľa názvu (A–Z)",
+    "editor.dir_asc": "Vzostupne (najslabšie / A→Z ako prvé)",
+    "editor.dir_desc": "Zostupne (najsilnejšie / Z→A ako prvé)"
+  },
 };
 
 // Maps ha-form field names to their translation keys (for computeLabel).
