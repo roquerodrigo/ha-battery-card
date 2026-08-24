@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.2...v1.2.0) (2026-08-24)
+
+
+### Features
+
+* **hacs:** attach the card bundle to every release ([a533a48](https://github.com/roquerodrigo/ha-battery-card/commit/a533a48b8d8cb04d337e92a0edc61410e35a9c08))
+
 ## [1.1.2](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.1...v1.1.2) (2026-08-07)
 
 
