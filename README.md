@@ -3,6 +3,8 @@
 [![CI](https://github.com/roquerodrigo/ha-battery-card/actions/workflows/ci.yml/badge.svg)](https://github.com/roquerodrigo/ha-battery-card/actions/workflows/ci.yml)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?logo=githubsponsors&logoColor=white&style=for-the-badge)](https://github.com/sponsors/roquerodrigo)
+
 [![Open your Home Assistant instance and open the repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=ha-battery-card&category=plugin)
 
 ---
@@ -100,6 +102,10 @@ Single file, zero-build (vanilla `HTMLElement`, no Lit/bundler). Edit
 `battery-card.js` directly. Releases are automated with
 [release-please](https://github.com/googleapis/release-please); commit with
 [Conventional Commits](https://www.conventionalcommits.org/) messages.
+
+## Support
+
+This card is built and maintained on personal time. If it is useful to you, consider [sponsoring the work](https://github.com/sponsors/roquerodrigo) — it keeps the development, the testing and the releases coming.
 
 ## License
 
