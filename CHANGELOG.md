@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/roquerodrigo/ha-battery-card/compare/v1.2.0...v1.2.1) (2026-09-02)
+
+
+### Documentation
+
+* add GitHub Sponsors button and support section ([8d191c4](https://github.com/roquerodrigo/ha-battery-card/commit/8d191c4a1deddc038bea04020b70e7134a584264))
+
 ## [1.2.0](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.2...v1.2.0) (2026-08-24)
 
 
