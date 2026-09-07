@@ -21,7 +21,8 @@ Lit, no npm deps. Inside it:
   editor, `getStubConfig`).
 - `class BatteryCardEditor extends HTMLElement` — visual editor backed by
   `ha-form`; `EDITOR_LABEL_KEYS` maps form field names to translation keys.
-- `TRANSLATIONS` — inline `en` / `pt-BR` string tables. This is a pure
+- `TRANSLATIONS` — inline per-locale string tables (`en`, `pt-BR`, `sk`, …).
+  This is a pure
   frontend plugin (no `custom_components/` backend), so there's no
   `hass.loadBackendTranslation` to hook into — strings are embedded directly
   and picked via `resolveLang(hass)`, falling back to English.
@@ -67,9 +68,9 @@ To try it locally against a real Home Assistant instance:
   bot via its `chore(main): release X.Y.Z` PR/commit.
 - **Adding a config option touches four places in `battery-card.js`**: the
   `setConfig`/default-handling logic, `getStubConfig`, the `ha-form` schema in
-  `BatteryCardEditor`, and both `en`/`pt-BR` entries in `TRANSLATIONS` (plus
+  `BatteryCardEditor`, and every locale entry in `TRANSLATIONS` (plus
   `EDITOR_LABEL_KEYS` if it needs a label). Missing one usually only breaks the
-  editor UI or the pt-BR locale, not obviously at a glance.
+  editor UI or a non-English locale, not obviously at a glance.
 - Card styling must stay on Home Assistant CSS custom properties (design
   tokens) — no hardcoded colors — so it continues to track the active theme
   and light/dark mode.
