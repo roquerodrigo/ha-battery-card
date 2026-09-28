@@ -17,8 +17,10 @@ Single-file, zero-build frontend plugin (`battery-card.js`) — no bundler, no
 Lit, no npm deps. Inside it:
 
 - `class BatteryCard extends HTMLElement` — the card itself (`setConfig`,
-  `set hass` re-renders on every state update, `getConfigElement` returns the
-  editor, `getStubConfig`).
+  `set hass` calls `_render()` on every state update, `getConfigElement`
+  returns the editor, `getStubConfig`). `_render()` skips the DOM rebuild when
+  a JSON signature of everything visible is unchanged (avoids flicker) — a new
+  visible field must be added to that signature or it will never refresh.
 - `class BatteryCardEditor extends HTMLElement` — visual editor backed by
   `ha-form`; `EDITOR_LABEL_KEYS` maps form field names to translation keys.
 - `TRANSLATIONS` — inline per-locale string tables (`en`, `pt-BR`, `sk`, …).
