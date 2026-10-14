@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/roquerodrigo/ha-battery-card/compare/v1.2.0...v1.2.1) (2026-10-14)
+
+
+### Miscellaneous Chores
+
+* **release:** keep only user-facing changes in the changelog ([8457a2c](https://github.com/roquerodrigo/ha-battery-card/commit/8457a2cee5a7b629a3de601b717cf9a682adb15a))
+
 ## [1.2.0](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.2...v1.2.0) (2026-08-24)
 
 
