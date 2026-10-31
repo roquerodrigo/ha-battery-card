@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.1](https://github.com/roquerodrigo/ha-battery-card/compare/v1.2.0...v1.2.1) (2026-10-31)
+
+Internal maintenance only, with no changes for those who use the project.
+
 ## [1.2.0](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.2...v1.2.0) (2026-08-24)
 
 
