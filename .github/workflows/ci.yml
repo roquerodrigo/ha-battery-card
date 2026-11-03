@@ -29,11 +29,9 @@ jobs:
         run: node --check battery-card.js
 
   validate:
-    uses: roquerodrigo/workflows/.github/workflows/home-assistant-validate.yml@main
-    with:
-      hassfest: false
-      version-check: false
-      hacs-category: plugin
+    permissions:
+      contents: read
+    uses: roquerodrigo/home-assistant-autopilot/.github/workflows/validate.yml@latest
 
   update-pr-branch:
     if: github.event_name == 'pull_request'
