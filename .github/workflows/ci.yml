@@ -29,9 +29,19 @@ jobs:
         run: node --check battery-card.js
 
   validate:
+    name: Home Assistant Marketplace
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
-    uses: roquerodrigo/home-assistant-autopilot/.github/workflows/validate.yml@latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate
+        uses: roquerodrigo/home-assistant-autopilot@latest
 
   update-pr-branch:
     if: github.event_name == 'pull_request'
