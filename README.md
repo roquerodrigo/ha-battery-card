@@ -100,7 +100,7 @@ the card. A visual editor is available in the dashboard UI, so YAML is optional.
 
 Single file, zero-build (vanilla `HTMLElement`, no Lit/bundler). Edit
 `battery-card.js` directly. Releases are automated with
-[release-please](https://github.com/googleapis/release-please); commit with
+[Release Autopilot](https://github.com/marketplace/actions/release-autopilot); commit with
 [Conventional Commits](https://www.conventionalcommits.org/) messages.
 
 ## Support
