@@ -55,19 +55,19 @@ To try it locally against a real Home Assistant instance:
 - CI (`.github/workflows/ci.yml`) validates the repository as a HACS `plugin`
   through the shared reusable workflows in `roquerodrigo/workflows`. Keep
   `hacs.json` and `package.json` valid.
-- Releases are automated by `.github/workflows/release.yml`: release-please
-  runs via `workflow_run` after a successful CI run of a **push** to `main`,
+- Releases are automated by `.github/workflows/release.yml`: the
+  [Release Autopilot](https://github.com/marketplace/actions/release-autopilot)
+  action runs via `workflow_run` after a successful CI run of a **push** to `main`,
   so a pull request with green CI never cuts a release.
 
 ## Conventions a newcomer would miss
 
 - **Commit messages must be Conventional Commits** (`feat:`, `fix:`, `docs:`,
-  etc.) — release-please parses them to decide the next version bump and to
-  generate `CHANGELOG.md`. A wrongly-typed commit silently produces a wrong
+  etc.) — Release Autopilot parses them to decide the next version bump and to
+  write the release notes and `CHANGELOG.md`. A wrongly-typed commit silently produces a wrong
   version bump or an empty changelog entry.
-- **Never hand-edit the version.** `package.json`'s `version` and
-  `.release-please-manifest.json` are only ever updated by the release-please
-  bot via its `chore(main): release X.Y.Z` PR/commit.
+- **Never hand-edit the version.** `package.json`'s `version` is only ever
+  updated by Release Autopilot through its release pull request.
 - **Adding a config option touches four places in `battery-card.js`**: the
   `setConfig`/default-handling logic, `getStubConfig`, the `ha-form` schema in
   `BatteryCardEditor`, and every locale entry in `TRANSLATIONS` (plus
