@@ -52,9 +52,9 @@ To try it locally against a real Home Assistant instance:
   syntax gate to run before pushing.
 - `pre-commit install` runs the generic hygiene hooks in
   `.pre-commit-config.yaml` (whitespace, EOF, YAML/JSON validity, LF endings).
-- CI (`.github/workflows/ci.yml`) validates the repository as a HACS `plugin`
-  through the shared reusable workflows in `roquerodrigo/workflows`. Keep
-  `hacs.json` and `package.json` valid.
+- CI (`.github/workflows/ci.yml`) runs `node --check battery-card.js` and
+  validates the card with the `roquerodrigo/home-assistant-autopilot` action.
+  Keep `hacs.json` and `package.json` valid.
 - Releases are automated by `.github/workflows/release.yml`: the
   [Release Autopilot](https://github.com/marketplace/actions/release-autopilot)
   action runs via `workflow_run` after a successful CI run of a **push** to `main`,
