@@ -1,112 +1,165 @@
 # Battery Card
 
+<!-- ha-marketplace:exclude-start -->
 [![CI](https://github.com/roquerodrigo/ha-battery-card/actions/workflows/ci.yml/badge.svg)](https://github.com/roquerodrigo/ha-battery-card/actions/workflows/ci.yml)
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![GitHub release](https://img.shields.io/github/v/release/roquerodrigo/ha-battery-card)](https://github.com/roquerodrigo/ha-battery-card/releases/latest)
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/roquerodrigo)
 
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?logo=githubsponsors&logoColor=white&style=for-the-badge)](https://github.com/sponsors/roquerodrigo)
+[![Open your Home Assistant instance and open a repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=ha-battery-card&category=plugin)
+<!-- ha-marketplace:exclude-end -->
 
-[![Open your Home Assistant instance and open the repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=ha-battery-card&category=plugin)
+See the battery level of every device in your home on one dashboard card,
+with the weakest first and the low ones in a warning color. The card finds
+your battery sensors by itself, so a new device shows up without editing the
+card.
 
----
+![Battery Card on a dashboard](assets/preview.png)
 
-A Home Assistant **Lovelace custom card** (`custom:battery-card`) that
-**auto-discovers every `battery` device-class sensor** and shows each one as its
-own tile — **weakest first** — highlighting the low ones. No manual entity list
-and **no custom integration**: it is a single-file, zero-build frontend resource.
-
-![Battery Card](assets/preview.png)
-
-<img src="assets/preview-mobile.png" alt="Battery Card — responsive single-column layout on mobile" width="360">
+<img src="assets/preview-mobile.png" alt="Battery Card on a phone, with one tile per row" width="360">
 
 ## Features
 
-- **Auto-discovery** — finds every `sensor` with `device_class: battery`; no
-  entity list to maintain (you can still pass an explicit `entities` list to
-  override it).
-- **Tile grid** — one tile per battery, in a responsive grid with a configurable
-  **max number of columns** per row.
-- **Weakest-first** — sorted by level by default; in-card toggle to sort by
-  **level** or **name** and to flip the direction.
-- **Filter** — show **all** batteries or **only the low** ones, from the config
-  and from an in-card toggle.
-- **Low / warning thresholds** — configurable; low batteries are colored with
-  the theme's error color, warning ones with the warning color.
-- **Device names** — prefers the device name (and your rename) over the raw
-  battery entity's friendly name.
-- **Theme-aware** — pure Home Assistant **design tokens**, so it follows the
-  active theme and light/dark mode automatically.
-- **Visual editor** — full options UI in the dashboard.
-- **Localized** — English and Brazilian Portuguese, following the active Home
-  Assistant UI language (falls back to English).
+- One tile per battery, with the device name, the level and a bar.
+- Sorted from the weakest battery up. Buttons on the card switch between
+  level and name, and reverse the order.
+- A button on the card shows only the low batteries.
+- Low and warning levels that you choose, shown in your theme's colors in
+  light and dark mode.
+- Each tile carries the name of the device, including any name you gave it,
+  instead of the name of the battery sensor.
+- Select a tile to open the sensor's details and history.
+- Set up everything in the visual editor.
+- Available in English, Portuguese (Brazil) and Slovak, following the
+  language of your Home Assistant profile.
 
+## Requirements
+
+- Home Assistant 2026.5.0 or newer.
+- Battery sensors that report a percentage, as most integrations do.
+
+<!-- ha-marketplace:exclude-start -->
 ## Installation
+
+### Home Assistant Marketplace (recommended)
+
+1. Select the **Open your Home Assistant instance** button above, or go to
+   **Settings → Marketplace**, select **Add from link** in the upper right
+   corner, enter `roquerodrigo/ha-battery-card` and select **Add**.
+2. Select **Install**. The card is added to your dashboard resources.
+3. Refresh your browser.
+
+The Marketplace comes with Home Assistant 2026.11 and later. On older
+versions, add this repository to HACS as a custom repository of type
+**Dashboard** and install it from there.
 
 ### Manual
 
-1. Copy `battery-card.js` into your Home Assistant `config/www/` folder.
-2. Register it as a Lovelace resource — *Settings → Dashboards → ⋮ → Resources
-   → Add resource*:
-   - URL: `/local/battery-card.js`
-   - Type: **JavaScript Module**
-3. Restart Home Assistant (needed the first time you add a `www/` file).
-
-### HACS (custom repository)
-
-Use the **My Home Assistant** button at the top of this README (it opens your
-Home Assistant and pre-fills the "add custom repository" dialog), or add this
-repository manually as a **custom repository** of category **Dashboard**, then
-install it and reload resources.
+1. Download `battery-card.js` from the
+   [latest release](https://github.com/roquerodrigo/ha-battery-card/releases/latest).
+2. Copy it into `config/www/`.
+3. Go to **Settings → Dashboards**, open the menu in the upper right corner
+   and select **Resources**. If the menu is missing, turn on
+   **Advanced mode** in your user profile.
+4. Select **Add resource**, enter `/local/battery-card.js` as the URL, choose
+   **JavaScript module** and select **Create**.
+5. Refresh your browser.
+<!-- ha-marketplace:exclude-end -->
 
 ## Usage
 
-Add the card to any dashboard. With auto-discovery, the minimal config is just:
+Edit a dashboard, select **Add card** and search for **Battery Card**. You can
+set every option in the visual editor. In YAML, this is all you need:
 
 ```yaml
 type: custom:battery-card
 ```
 
-All options:
+The card shows every sensor whose device class is battery, except the ones
+you have hidden. To pick the batteries yourself, list them under `entities`:
 
 ```yaml
 type: custom:battery-card
-title: Baterias        # optional; defaults to a localized "Batteries"/"Baterias"
-mode: all              # all | low            (default all)
-sort: level            # level | name         (default level)
-sort_direction: asc    # asc | desc           (default asc)
-threshold: 20          # % at/below which a battery is "low"     (default 20)
-warning: 40            # % at/below which a battery is "warning"  (default threshold*2)
-columns: 5             # max tiles per row on wide screens        (default 5)
-entities:              # optional — overrides auto-discovery
-  - sensor.some_battery
+title: Door locks
+threshold: 15
+entities:
+  - sensor.front_door_battery
+  - sensor.back_door_battery
 ```
+
+The two groups of buttons in the card header change the view without editing
+the card. The first group, **All** and **Low**, filters the list. The second
+sorts by level or by name, and selecting the active button again reverses the
+order. These choices are not saved: the card goes back to its options when
+the page reloads.
+
+A level at or below the low threshold uses your theme's low battery color
+(red by default). A level at or below the warning threshold uses the warning
+color (orange by default). Every other level uses the high battery color
+(green by default).
 
 ## Options
 
-| Name             | Type                | Default          | Description                                                        |
-| ---------------- | ------------------- | ---------------- | ------------------------------------------------------------------ |
-| `title`          | string              | localized        | Card header. Defaults to a localized "Batteries" / "Baterias".     |
-| `mode`           | `all` \| `low`      | `all`            | Show every battery, or only the ones at/below `threshold`.         |
-| `sort`           | `level` \| `name`   | `level`          | Sort by percentage or by name.                                     |
-| `sort_direction` | `asc` \| `desc`     | `asc`            | Ascending (weakest / A→Z first) or descending.                     |
-| `threshold`      | number              | `20`             | Percentage at/below which a battery counts as **low**.             |
-| `warning`        | number              | `threshold * 2`  | Percentage at/below which a battery counts as **warning**.         |
-| `columns`        | number (1–12)       | `5`              | Max tiles per row on wide screens; degrades to fewer as width drops. |
-| `entities`       | list                | auto-discovery   | Explicit entity list; overrides auto-discovery.                    |
+| Option           | Accepts                          | Default                        |
+|------------------|----------------------------------|--------------------------------|
+| `title`          | Any text                         | Batteries, in your language    |
+| `mode`           | `all` or `low`                   | `all`                          |
+| `sort`           | `level` or `name`                | `level`                        |
+| `sort_direction` | `asc` or `desc`                  | `asc`                          |
+| `threshold`      | A percentage, 0 to 100           | `20`                           |
+| `warning`        | A percentage, 0 to 100           | Twice `threshold`, at most 100 |
+| `columns`        | A whole number, 1 to 12          | `5`                            |
+| `entities`       | A list of entity IDs             | Every battery sensor           |
 
-The `mode`, `sort` and `sort_direction` options are also togglable directly on
-the card. A visual editor is available in the dashboard UI, so YAML is optional.
+- `mode`: `low` shows only the batteries at or below `threshold`.
+- `sort_direction`: `asc` puts the weakest battery, or the name closest to A,
+  first.
+- `threshold`: the level at or below which a battery is low.
+- `warning`: the level at or below which a battery gets the warning color.
+- `columns`: the most tiles per row on a wide screen. On narrower screens the
+  card uses fewer, down to one tile per row on a phone.
 
-## Development
+## How it works
 
-Single file, zero-build (vanilla `HTMLElement`, no Lit/bundler). Edit
-`battery-card.js` directly. Releases are automated with
-[Release Autopilot](https://github.com/marketplace/actions/release-autopilot); commit with
-[Conventional Commits](https://www.conventionalcommits.org/) messages.
+The card reads the battery sensors Home Assistant already has and updates as
+soon as a level changes. It adds no entities and makes no requests of its
+own.
+
+## Troubleshooting
+
+**A battery is missing from the card.** The card only finds sensors whose
+device class is battery, and it skips hidden entities. Unhide the entity, or
+add it to `entities`.
+
+**A tile shows no percentage.** The sensor is unavailable or unknown right
+now. These tiles always go to the end of the list and are left out of the
+**Low** view.
+
+**The dashboard says the custom element battery-card does not exist.** The
+browser has not loaded the card yet. Refresh the page, clearing the cache if
+needed. After a manual install, check the resource URL and type.
+
+**Something else is wrong.** Open an
+[issue](https://github.com/roquerodrigo/ha-battery-card/issues) with your card
+configuration and any errors from the browser console.
+
+## Known limitations
+
+Battery sensors that only report low or normal, without a percentage, are not
+supported.
 
 ## Support
 
-This card is built and maintained on personal time. If it is useful to you, consider [sponsoring the work](https://github.com/sponsors/roquerodrigo) — it keeps the development, the testing and the releases coming.
+This card is built and maintained on personal time. If it is useful to you,
+consider [sponsoring the work](https://github.com/sponsors/roquerodrigo). It
+keeps the fixes, the testing and the releases coming.
+
+<!-- ha-marketplace:exclude-start -->
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup and
+workflow.
 
 ## License
 
 [MIT](LICENSE)
+<!-- ha-marketplace:exclude-end -->
