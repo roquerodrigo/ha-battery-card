@@ -29,6 +29,31 @@ const TRANSLATIONS = {
     "editor.dir_asc": "Ascending (lowest / A→Z first)",
     "editor.dir_desc": "Descending (highest / Z→A first)",
   },
+  de: {
+    "card.default_title": "Batterien",
+    "card.filter": "Filter",
+    "card.all": "Alle",
+    "card.low": "Niedrig",
+    "card.sort": "Sortieren",
+    "card.sort_by_level": "Nach Batteriestand sortieren (erneut klicken, um umzukehren)",
+    "card.sort_by_name": "Nach Name sortieren (erneut klicken, um umzukehren)",
+    "card.empty_all_ok": "Alle Batterien in Ordnung",
+    "card.empty_none": "Keine Batterien gefunden",
+    "editor.title": "Titel",
+    "editor.mode": "Anzeige",
+    "editor.sort": "Sortierung",
+    "editor.direction": "Reihenfolge",
+    "editor.threshold": "Schwellenwert für niedrigen Batteriestand",
+    "editor.warning": "Warnschwelle",
+    "editor.warning_default": "Leer lassen, um den doppelten Schwellenwert für niedrigen Batteriestand zu verwenden (aktuell {value} %)",
+    "editor.columns": "Maximale Spalten pro Zeile",
+    "editor.mode_all": "Alle Batterien",
+    "editor.mode_low": "Nur schwache Batterien",
+    "editor.sort_level": "Nach Batteriestand (%)",
+    "editor.sort_name": "Nach Name (A–Z)",
+    "editor.dir_asc": "Aufsteigend (niedrigster Stand / A→Z zuerst)",
+    "editor.dir_desc": "Absteigend (höchster Stand / Z→A zuerst)",
+  },
   "pt-BR": {
     "card.default_title": "Baterias",
     "card.filter": "Filtro",
@@ -94,6 +119,8 @@ const EDITOR_LABEL_KEYS = {
 function resolveLang(hass) {
   const lang = (hass && (hass.locale?.language || hass.language || hass.selectedLanguage)) || "en";
   if (TRANSLATIONS[lang]) return lang;
+  if (lang.split("-")[0] === "de") return "de";
+  if (lang.split("-")[0] === "sk") return "sk";
   if (lang.split("-")[0] === "pt") return "pt-BR";
   return "en";
 }
