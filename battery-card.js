@@ -20,6 +20,7 @@ const TRANSLATIONS = {
     "editor.direction": "Direction",
     "editor.threshold": "Low battery threshold",
     "editor.warning": "Warning threshold",
+    "editor.warning_default": "Leave empty to use twice the low threshold (now {value}%)",
     "editor.columns": "Max columns per row",
     "editor.mode_all": "All batteries",
     "editor.mode_low": "Only the weak ones",
@@ -44,6 +45,7 @@ const TRANSLATIONS = {
     "editor.direction": "Direção",
     "editor.threshold": "Limite de bateria fraca",
     "editor.warning": "Limite de aviso",
+    "editor.warning_default": "Deixe vazio para usar o dobro do limite de bateria fraca (agora {value}%)",
     "editor.columns": "Máx. de colunas por linha",
     "editor.mode_all": "Todas as baterias",
     "editor.mode_low": "Somente as fracas",
@@ -68,6 +70,7 @@ const TRANSLATIONS = {
     "editor.direction": "Smer",
     "editor.threshold": "Hranica slabej batérie",
     "editor.warning": "Hranica varovania",
+    "editor.warning_default": "Nechajte prázdne pre dvojnásobok hranice slabej batérie (teraz {value} %)",
     "editor.columns": "Maximálny počet stĺpcov na riadok",
     "editor.mode_all": "Všetky batérie",
     "editor.mode_low": "Iba slabé",
@@ -98,6 +101,10 @@ function resolveLang(hass) {
 function localize(hass, key) {
   const lang = resolveLang(hass);
   return TRANSLATIONS[lang]?.[key] ?? TRANSLATIONS.en[key] ?? key;
+}
+
+function defaultWarning(threshold) {
+  return Math.min(100, threshold * 2);
 }
 
 function parseLevel(state) {
@@ -149,7 +156,7 @@ class BatteryCard extends HTMLElement {
     if (typeof threshold !== "number" || threshold < 0 || threshold > 100) {
       throw new Error('battery-card: "threshold" must be a number between 0 and 100');
     }
-    const warning = config.warning ?? Math.min(100, threshold * 2);
+    const warning = config.warning ?? defaultWarning(threshold);
     if (typeof warning !== "number" || warning < 0 || warning > 100) {
       throw new Error('battery-card: "warning" must be a number between 0 and 100');
     }
@@ -540,18 +547,25 @@ class BatteryCardEditor extends HTMLElement {
     return localize(this._hass, EDITOR_LABEL_KEYS[schema.name] ?? schema.name);
   }
 
+  _helper(schema) {
+    if (schema.name !== "warning" || this._config.warning != null) return undefined;
+    const threshold = this._config.threshold ?? DEFAULT_THRESHOLD;
+    return localize(this._hass, "editor.warning_default").replace("{value}", defaultWarning(threshold));
+  }
+
   _render() {
     if (!this._hass) return;
     if (!this._form) {
       this._form = document.createElement("ha-form");
       this._form.computeLabel = (schema) => this._labels(schema);
+      this._form.computeHelper = (schema) => this._helper(schema);
       this._form.addEventListener("value-changed", (ev) => {
         // Spread the incoming config first so keys the form does not model
         // (a YAML `entities` list) survive, and drop cleared fields so an
-        // empty title falls back to the localized default.
+        // empty title or warning falls back to its default.
         const config = { type: "custom:battery-card", ...this._config, ...ev.detail.value };
         for (const [key, value] of Object.entries(config)) {
-          if (value === "") delete config[key];
+          if (value === "" || value == null) delete config[key];
         }
         this.dispatchEvent(
           new CustomEvent("config-changed", { detail: { config }, bubbles: true, composed: true })
@@ -567,7 +581,7 @@ class BatteryCardEditor extends HTMLElement {
       sort: this._config.sort ?? "level",
       sort_direction: this._config.sort_direction ?? "asc",
       threshold: this._config.threshold ?? DEFAULT_THRESHOLD,
-      warning: this._config.warning ?? Math.min(100, (this._config.threshold ?? DEFAULT_THRESHOLD) * 2),
+      warning: this._config.warning,
       columns: this._config.columns ?? DEFAULT_COLUMNS,
     };
   }

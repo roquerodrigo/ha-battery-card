@@ -119,6 +119,8 @@ language's number format.
   first.
 - `threshold`: the level at or below which a battery is low.
 - `warning`: the level at or below which a battery gets the warning color.
+  Without it, the warning level follows `threshold`. In the visual editor,
+  leave the field empty to keep it that way.
 - `columns`: the most tiles per row on a wide screen. On narrower screens the
   card uses fewer, down to one tile per row on a phone.
 
