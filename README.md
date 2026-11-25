@@ -31,7 +31,7 @@ card.
   instead of the name of the battery sensor.
 - Select a tile to open the sensor's details and history.
 - Set up everything in the visual editor.
-- Available in English, Portuguese (Brazil) and Slovak, following the
+- Available in English, German, Portuguese (Brazil) and Slovak, following the
   language of your Home Assistant profile.
 
 ## Requirements
