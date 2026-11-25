@@ -80,3 +80,10 @@ To try it locally against a real Home Assistant instance:
 - Card styling must stay on Home Assistant CSS custom properties (design
   tokens) — no hardcoded colors — so it continues to track the active theme
   and light/dark mode.
+- Each battery is rendered with the frontend's own tile primitives
+  (`ha-card` > `ha-tile-container` > `ha-tile-icon` + `ha-tile-info`, icon from
+  `ha-state-icon`) and the header toggles are `ha-button`. These elements are
+  defined by the frontend, not by this file: `ha-tile-*` come with the tile
+  card, which Lovelace always loads. Properties without attributes
+  (`interactive`, `hass`, `stateObj`) are assigned after each `innerHTML`
+  rebuild, and the tile tap arrives as the container's `action` event.

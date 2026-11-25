@@ -19,7 +19,9 @@ card.
 
 ## Features
 
-- One tile per battery, with the device name, the level and a bar.
+- One tile per battery, built from Home Assistant's own tile components, with
+  the device name, the level and a bar. It looks and behaves like the tile
+  cards around it.
 - Sorted from the weakest battery up. Buttons on the card switch between
   level and name, and reverse the order.
 - A button on the card shows only the low batteries.
@@ -93,9 +95,11 @@ order. These choices are not saved: the card goes back to its options when
 the page reloads.
 
 A level at or below the low threshold uses your theme's low battery color
-(red by default). A level at or below the warning threshold uses the warning
-color (orange by default). Every other level uses the high battery color
-(green by default).
+(red by default). A level at or below the warning threshold uses the medium
+battery color (orange by default). Every other level uses the high battery
+color (green by default). The icon is the one Home Assistant shows for the
+sensor, including any icon you picked for it, and the level follows your
+language's number format.
 
 ## Options
 
