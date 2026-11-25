@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.1](https://github.com/roquerodrigo/ha-battery-card/compare/v1.3.0...v1.3.1) (2026-11-25)
+
+### Bug fixes
+
+- Battery sensors hidden in Home Assistant are no longer listed by automatic discovery; entities listed explicitly under entities are still shown. ([#39](https://github.com/roquerodrigo/ha-battery-card/pull/39))
+
 ## [1.3.0](https://github.com/roquerodrigo/ha-battery-card/compare/v1.2.0...v1.3.0) (2026-11-25)
 
 Battery tiles now use Home Assistant's native tile components, and the visual editor no longer locks the warning level.
