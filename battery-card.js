@@ -214,7 +214,7 @@ class BatteryCard extends HTMLElement {
         if (!id.startsWith("sensor.")) return false;
         const state = hass.states[id];
         if (state.attributes.device_class !== "battery") return false;
-        if (registry[id] && registry[id].hidden_by) return false;
+        if (registry[id] && registry[id].hidden) return false;
         return true;
       });
     }
