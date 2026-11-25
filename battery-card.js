@@ -1,27 +1,8 @@
-/**
- * Battery card — a Lovelace custom card that auto-discovers every
- * `battery` device-class sensor and highlights the weak ones.
- *
- * Zero-build vanilla web component (no Lit/bundler). Styles are driven entirely
- * by Home Assistant design tokens so the card follows the active theme and
- * light/dark mode automatically.
- *
- * Config:
- *   type: custom:battery-card
- *   title: Baterias      # optional; defaults to a localized "Batteries"/"Baterias"
- *   mode: all            # all | low   (default all)
- *   threshold: 20        # % at or below which a battery is "low" (default 20)
- *   warning: 40          # % at or below which a battery is "warning" (default threshold*2)
- *   entities: [...]      # optional: overrides auto-discovery
- */
-
 const DEFAULT_THRESHOLD = 20;
 const DEFAULT_COLUMNS = 5;
 
-// i18n — this is a pure frontend plugin (no custom_component), so there is no
-// backend translation to `hass.loadBackendTranslation`. Following the common
-// custom-card pattern, strings are embedded here and picked by the active HA UI
-// language, falling back to English.
+// A pure frontend card has no backend translations to load, so the strings
+// are embedded and picked by the active Home Assistant language.
 const TRANSLATIONS = {
   en: {
     "card.default_title": "Batteries",
@@ -97,7 +78,6 @@ const TRANSLATIONS = {
   },
 };
 
-// Maps ha-form field names to their translation keys (for computeLabel).
 const EDITOR_LABEL_KEYS = {
   title: "editor.title",
   mode: "editor.mode",
@@ -108,7 +88,6 @@ const EDITOR_LABEL_KEYS = {
   columns: "editor.columns",
 };
 
-/** The active HA UI language, or a supported fallback (base lang, then "en"). */
 function resolveLang(hass) {
   const lang = (hass && (hass.locale?.language || hass.language || hass.selectedLanguage)) || "en";
   if (TRANSLATIONS[lang]) return lang;
@@ -116,21 +95,11 @@ function resolveLang(hass) {
   return "en";
 }
 
-/** Translate a dotted key for the active language; English is the fallback. */
 function localize(hass, key) {
   const lang = resolveLang(hass);
   return TRANSLATIONS[lang]?.[key] ?? TRANSLATIONS.en[key] ?? key;
 }
 
-function batteryIcon(level) {
-  if (level === null || Number.isNaN(level)) return "mdi:battery-unknown";
-  const rounded = Math.round(level / 10) * 10;
-  if (rounded >= 100) return "mdi:battery";
-  if (rounded <= 0) return "mdi:battery-outline";
-  return `mdi:battery-${rounded}`;
-}
-
-/** Parse a battery sensor state into a number, or null when not a value. */
 function parseLevel(state) {
   if (!state || state.state === "unavailable" || state.state === "unknown") {
     return null;
@@ -147,14 +116,8 @@ const HTML_ESCAPES = {
   "'": "&#39;",
 };
 
-/** Escape a value for interpolation into HTML text content. */
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => HTML_ESCAPES[character]);
-}
-
-/** Escape a value for interpolation into a double-quoted HTML attribute. */
-function escapeAttribute(value) {
-  return escapeHtml(value);
 }
 
 class BatteryCard extends HTMLElement {
@@ -163,9 +126,9 @@ class BatteryCard extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._config = {};
     this._hass = null;
-    this._runtimeMode = null; // in-card toggle override; null = follow config
-    this._runtimeSort = null; // in-card sort override; null = follow config
-    this._runtimeDirection = null; // in-card sort direction override; null = follow config
+    this._runtimeMode = null;
+    this._runtimeSort = null;
+    this._runtimeDirection = null;
     this._signature = null;
   }
 
@@ -215,7 +178,7 @@ class BatteryCard extends HTMLElement {
     this._runtimeMode = null;
     this._runtimeSort = null;
     this._runtimeDirection = null;
-    this._signature = null; // force re-render
+    this._signature = null;
     if (this._hass) this._render();
   }
 
@@ -232,7 +195,6 @@ class BatteryCard extends HTMLElement {
     return { min_columns: 6, min_rows: 3 };
   }
 
-  /** Discover the battery entities to display, sorted by the active sort. */
   _collect() {
     const hass = this._hass;
     const registry = hass.entities || {};
@@ -254,25 +216,24 @@ class BatteryCard extends HTMLElement {
       .map((id) => {
         const state = hass.states[id];
         if (!state) return null;
-        // Prefer the device name (user override, then default) over the
-        // battery entity's own friendly name; fall back to entity / id.
         const entry = registry[id];
         const device = entry && entry.device_id ? devices[entry.device_id] : null;
         const deviceName = device ? device.name_by_user || device.name : null;
+        const level = parseLevel(state);
         return {
           id,
+          state,
           name: deviceName || state.attributes.friendly_name || id,
-          level: parseLevel(state),
+          level,
+          formattedState: this._formatState(state, level),
         };
       })
       .filter(Boolean);
 
     const directionFactor = this._effectiveDirection() === "desc" ? -1 : 1;
     if (this._effectiveSort() === "name") {
-      // Alphabetical by name (asc = A→Z).
       items.sort((a, b) => a.name.localeCompare(b.name) * directionFactor);
     } else {
-      // By level (asc = weakest first); entities without a value always last.
       items.sort((a, b) => {
         if (a.level === null && b.level === null) return a.name.localeCompare(b.name);
         if (a.level === null) return 1;
@@ -282,6 +243,13 @@ class BatteryCard extends HTMLElement {
       });
     }
     return items;
+  }
+
+  _formatState(state, level) {
+    if (typeof this._hass.formatEntityState === "function") {
+      return this._hass.formatEntityState(state);
+    }
+    return level === null ? "—" : `${Math.round(level)} %`;
   }
 
   _effectiveMode() {
@@ -297,10 +265,45 @@ class BatteryCard extends HTMLElement {
   }
 
   _colorVar(level) {
-    if (level === null) return "var(--secondary-text-color)";
+    if (level === null) return "var(--state-unavailable-color, var(--disabled-color))";
     if (level <= this._config.threshold) return "var(--state-sensor-battery-low-color, var(--error-color))";
-    if (level <= this._config.warning) return "var(--warning-color)";
+    if (level <= this._config.warning) return "var(--state-sensor-battery-medium-color, var(--warning-color))";
     return "var(--state-sensor-battery-high-color, var(--success-color))";
+  }
+
+  _renderToggle(attribute, value, active, label, tooltip) {
+    const appearance = active ? "filled" : "plain";
+    const variant = active ? "brand" : "neutral";
+    const title = tooltip ? ` title="${escapeHtml(tooltip)}"` : "";
+    return `<ha-button size="s" appearance="${appearance}" variant="${variant}" data-${attribute}="${value}" aria-pressed="${active}"${title}>${label}</ha-button>`;
+  }
+
+  _renderSortToggle(field, label, tooltip, sort, direction) {
+    const active = sort === field;
+    const arrow = active ? `<ha-icon slot="end" icon="${direction === "desc" ? "mdi:arrow-down" : "mdi:arrow-up"}"></ha-icon>` : "";
+    return this._renderToggle("sort", field, active, `${label}${arrow}`, tooltip);
+  }
+
+  _renderTile(item) {
+    const percentage = item.level === null ? 0 : Math.max(0, Math.min(100, item.level));
+    const name = escapeHtml(item.name);
+    return `
+      <ha-card class="tile" style="--tile-color:${this._colorVar(item.level)}">
+        <ha-tile-container data-id="${escapeHtml(item.id)}">
+          <ha-tile-icon slot="icon">
+            <ha-state-icon slot="icon" data-id="${escapeHtml(item.id)}"></ha-state-icon>
+          </ha-tile-icon>
+          <ha-tile-info slot="info">
+            <span slot="primary" title="${name}">${name}</span>
+            <span slot="secondary">${escapeHtml(item.formattedState)}</span>
+          </ha-tile-info>
+          <div slot="features">
+            <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(percentage)}" aria-label="${name}">
+              <div class="fill" style="width:${percentage}%"></div>
+            </div>
+          </div>
+        </ha-tile-container>
+      </ha-card>`;
   }
 
   _render() {
@@ -311,33 +314,20 @@ class BatteryCard extends HTMLElement {
     const mode = this._effectiveMode();
     const sort = this._effectiveSort();
     const direction = this._effectiveDirection();
-    const arrow = direction === "desc" ? "↓" : "↑";
     const title = this._config.title ?? t("card.default_title");
     const shown = mode === "low" ? items.filter((i) => i.level !== null && i.level <= this._config.threshold) : items;
 
-    // Skip a rebuild when nothing visible has changed (avoids flicker).
-    const signature = JSON.stringify([mode, sort, direction, title, lang, this._config.columns, shown.map((i) => [i.id, i.name, i.level])]);
+    const signature = JSON.stringify([
+      mode,
+      sort,
+      direction,
+      title,
+      lang,
+      this._config.columns,
+      shown.map((i) => [i.id, i.name, i.level, i.formattedState, i.state.attributes.icon]),
+    ]);
     if (signature === this._signature) return;
     this._signature = signature;
-
-    const rows = shown
-      .map((item) => {
-        const color = this._colorVar(item.level);
-        const percentage = item.level === null ? 0 : Math.max(0, Math.min(100, item.level));
-        const value = item.level === null ? "—" : `${Math.round(item.level)}%`;
-        return `
-          <div class="row" data-id="${escapeAttribute(item.id)}" title="${escapeAttribute(item.name)}">
-            <ha-icon class="icon" style="color:${color}" icon="${batteryIcon(item.level)}"></ha-icon>
-            <div class="body">
-              <div class="line">
-                <span class="name" title="${escapeAttribute(item.name)}">${escapeHtml(item.name)}</span>
-                <span class="value" style="color:${color}">${value}</span>
-              </div>
-              <div class="bar"><div class="fill" style="width:${percentage}%;background:${color}"></div></div>
-            </div>
-          </div>`;
-      })
-      .join("");
 
     const empty =
       mode === "low"
@@ -347,51 +337,57 @@ class BatteryCard extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>${BatteryCard.styles}</style>
       <ha-card>
-        <div class="header">
-          <div class="title">${escapeHtml(title)}</div>
+        <div class="card-header">
+          <span class="title">${escapeHtml(title)}</span>
           <div class="controls">
-            <div class="toggle" role="group" aria-label="${t("card.filter")}">
-              <button data-mode="all" class="${mode === "all" ? "active" : ""}">${t("card.all")}</button>
-              <button data-mode="low" class="${mode === "low" ? "active" : ""}">${t("card.low")}</button>
+            <div class="group" role="group" aria-label="${t("card.filter")}">
+              ${this._renderToggle("mode", "all", mode === "all", t("card.all"))}
+              ${this._renderToggle("mode", "low", mode === "low", t("card.low"))}
             </div>
-            <div class="toggle" role="group" aria-label="${t("card.sort")}">
-              <button data-sort="level" class="${sort === "level" ? "active" : ""}" title="${t("card.sort_by_level")}">%${sort === "level" ? ` <span class="arrow">${arrow}</span>` : ""}</button>
-              <button data-sort="name" class="${sort === "name" ? "active" : ""}" title="${t("card.sort_by_name")}">A–Z${sort === "name" ? ` <span class="arrow">${arrow}</span>` : ""}</button>
+            <div class="group" role="group" aria-label="${t("card.sort")}">
+              ${this._renderSortToggle("level", "%", t("card.sort_by_level"), sort, direction)}
+              ${this._renderSortToggle("name", "A–Z", t("card.sort_by_name"), sort, direction)}
             </div>
           </div>
         </div>
-        <div class="grid" style="--cols:${this._config.columns}">${shown.length ? rows : empty}</div>
+        <div class="card-content">
+          <div class="grid" style="--cols:${this._config.columns}">${shown.length ? shown.map((item) => this._renderTile(item)).join("") : empty}</div>
+        </div>
       </ha-card>`;
 
-    this.shadowRoot.querySelectorAll("[data-mode]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        this._runtimeMode = btn.dataset.mode;
+    const statesById = new Map(shown.map((item) => [item.id, item.state]));
+    this.shadowRoot.querySelectorAll("ha-state-icon").forEach((icon) => {
+      icon.hass = this._hass;
+      icon.stateObj = statesById.get(icon.dataset.id);
+    });
+
+    this.shadowRoot.querySelectorAll("ha-tile-container").forEach((container) => {
+      container.interactive = true;
+      container.addEventListener("action", () => this._showMore(container.dataset.id));
+    });
+
+    this.shadowRoot.querySelectorAll("[data-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        this._runtimeMode = button.dataset.mode;
         this._signature = null;
         this._render();
       });
     });
 
-    this.shadowRoot.querySelectorAll("[data-sort]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const field = btn.dataset.sort;
+    this.shadowRoot.querySelectorAll("[data-sort]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const field = button.dataset.sort;
         if (this._effectiveSort() === field) {
-          // Clicking the active field flips the direction.
           this._runtimeDirection = this._effectiveDirection() === "asc" ? "desc" : "asc";
         } else {
-          // Switching field keeps the current direction.
           this._runtimeSort = field;
         }
         this._signature = null;
         this._render();
       });
     });
-
-    this.shadowRoot.querySelectorAll(".row").forEach((row) => {
-      row.addEventListener("click", () => this._showMore(row.dataset.id));
-    });
   }
 
-  /** Open the more-info dialog for an entity (standard HA behaviour). */
   _showMore(entityId) {
     this.dispatchEvent(
       new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true })
@@ -404,128 +400,74 @@ class BatteryCard extends HTMLElement {
         display: block;
       }
       ha-card {
-        padding: 12px 16px 16px;
+        height: 100%;
       }
-      .header {
+      .card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 12px;
         flex-wrap: wrap;
+        gap: var(--ha-space-2, 8px) var(--ha-space-3, 12px);
+      }
+      .title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .controls {
         display: flex;
-        align-items: center;
-        gap: 8px;
         flex-wrap: wrap;
+        gap: var(--ha-space-2, 8px);
       }
-      .title {
-        font-size: 1.25rem;
-        font-weight: 500;
-        color: var(--primary-text-color);
-        line-height: 1.4;
-      }
-      .toggle {
+      .group {
         display: inline-flex;
-        border: 1px solid var(--divider-color, rgba(0,0,0,.12));
-        border-radius: 999px;
-        overflow: hidden;
+        gap: var(--ha-space-1, 4px);
       }
-      .toggle button {
-        appearance: none;
-        border: 0;
-        background: transparent;
-        color: var(--secondary-text-color);
-        font: inherit;
-        font-size: 0.8125rem;
-        padding: 4px 14px;
-        cursor: pointer;
-      }
-      .toggle button.active {
-        background: var(--primary-color);
-        color: var(--text-primary-color, #fff);
-      }
-      .toggle button .arrow {
-        font-size: 0.75rem;
-        opacity: 0.9;
+      ha-button ha-icon {
+        --mdc-icon-size: 16px;
       }
       .grid {
+        --gap: var(--ha-space-2, 8px);
         display: grid;
-        --gap: 14px;
-        /* Cap at --cols columns on wide screens (configurable, default 5);
-           degrade to fewer as width drops (min tile width 220px). The
-           subtracted term is the (--cols - 1) inter-column gaps. */
         grid-template-columns: repeat(
           auto-fill,
-          minmax(max(220px, calc((100% - (var(--cols, 5) - 1) * var(--gap)) / var(--cols, 5))), 1fr)
+          minmax(max(200px, calc((100% - (var(--cols, 5) - 1) * var(--gap)) / var(--cols, 5))), 1fr)
         );
         gap: var(--gap);
       }
-      .row {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        cursor: pointer;
-        padding: 14px 16px;
-        min-height: 48px;
-        box-sizing: border-box;
-        border-radius: 12px;
-        background: var(--ha-card-background, var(--card-background-color, #fff));
-        border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
-        transition: background .2s ease, border-color .2s ease;
+      .tile {
+        transition:
+          box-shadow 180ms ease-in-out,
+          border-color 180ms ease-in-out;
       }
-      .row:hover {
-        background: var(--secondary-background-color);
-        border-color: var(--primary-color);
+      .tile:has(ha-tile-container[focused]) {
+        --shadow-default: var(--ha-card-box-shadow, 0 0 0 0 transparent);
+        --shadow-focus: 0 0 0 1px var(--tile-color);
+        border-color: var(--tile-color);
+        box-shadow: var(--shadow-default), var(--shadow-focus);
       }
-      .icon {
-        /* size follows the HA default (--mdc-icon-size, 24px) */
-        flex: 0 0 auto;
-      }
-      .body {
-        flex: 1 1 auto;
-        min-width: 0;
-      }
-      .line {
-        display: flex;
-        justify-content: space-between;
-        gap: 8px;
-        align-items: center;
-      }
-      .name {
-        color: var(--primary-text-color);
-        font-size: 1.05rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        min-width: 0;
-      }
-      .value {
-        font-variant-numeric: tabular-nums;
-        font-weight: 600;
-        font-size: 1.05rem;
-        flex: 0 0 auto;
+      ha-tile-icon {
+        --tile-icon-color: var(--tile-color);
       }
       .bar {
-        margin-top: 10px;
-        height: 7px;
-        border-radius: 2px;
-        background: var(--divider-color, rgba(0,0,0,.1));
+        height: var(--ha-space-2, 8px);
+        border-radius: var(--ha-bar-border-radius, var(--ha-border-radius-sm, 4px));
+        background: var(--ha-bar-background-color, var(--secondary-background-color));
         overflow: hidden;
       }
       .fill {
         height: 100%;
-        border-radius: 2px;
-        transition: width .3s ease;
+        background: var(--tile-color);
+        transition: width 180ms ease-in-out;
       }
       .empty {
         grid-column: 1 / -1;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--ha-space-2, 8px);
         color: var(--secondary-text-color);
-        padding: 16px 4px;
+        padding: var(--ha-space-2, 8px) 0;
       }
     `;
   }
@@ -548,7 +490,6 @@ class BatteryCardEditor extends HTMLElement {
     this._render();
   }
 
-  /** Build the ha-form schema with option labels in the active language. */
   _schema() {
     const t = (key) => localize(this._hass, key);
     return [
@@ -605,10 +546,9 @@ class BatteryCardEditor extends HTMLElement {
       this._form = document.createElement("ha-form");
       this._form.computeLabel = (schema) => this._labels(schema);
       this._form.addEventListener("value-changed", (ev) => {
-        // Merge over the incoming config so keys outside the form schema
-        // (e.g. a YAML `entities` list) survive an editor round-trip; drop
-        // cleared text fields so an empty title falls back to the localized
-        // default instead of freezing a blank header.
+        // Spread the incoming config first so keys the form does not model
+        // (a YAML `entities` list) survive, and drop cleared fields so an
+        // empty title falls back to the localized default.
         const config = { type: "custom:battery-card", ...this._config, ...ev.detail.value };
         for (const [key, value] of Object.entries(config)) {
           if (value === "") delete config[key];
