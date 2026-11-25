@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0](https://github.com/roquerodrigo/ha-battery-card/compare/v1.2.0...v1.3.0) (2026-11-25)
+
+Battery tiles now use Home Assistant's native tile components, and the visual editor no longer locks the warning level.
+
+### New features
+
+- The warning field in the visual editor can be left empty, and its helper text shows the level currently in use. ([#37](https://github.com/roquerodrigo/ha-battery-card/pull/37))
+
+### Improvements
+
+- Batteries are now shown as tiles built from Home Assistant's native tile components, so the card looks and behaves like the built-in tile cards, with ripple, focus ring and keyboard activation. ([#35](https://github.com/roquerodrigo/ha-battery-card/pull/35))
+- Tile icons now follow the sensor's icon in Home Assistant, including custom icons, and levels use your number format; unavailable sensors read as Unavailable. ([#35](https://github.com/roquerodrigo/ha-battery-card/pull/35))
+- The warning level now uses the theme's medium battery color, and unavailable sensors use the theme's unavailable color. ([#35](https://github.com/roquerodrigo/ha-battery-card/pull/35))
+
+### Bug fixes
+
+- The visual editor no longer fixes the warning level when you edit other fields, so changing the low threshold keeps moving the warning level as in YAML. ([#37](https://github.com/roquerodrigo/ha-battery-card/pull/37))
+
 ## [1.2.0](https://github.com/roquerodrigo/ha-battery-card/compare/v1.1.2...v1.2.0) (2026-08-24)
 
 
